@@ -42,39 +42,39 @@ LIGHT_PINK2 = 255, 204, 255
 
 
 
-pygame.init()
-gameDisplay=pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
-pygame.display.set_caption("shoting game")
-clock=pygame.time.Clock()
-myFont = pygame.font.SysFont( "arial", 30, True, False)
-title= myFont.render("Pygame Text Test", True, BLACK)
+pygame.init()  #게임실행
+gameDisplay=pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT)) #게임창 설정
+pygame.display.set_caption("shoting game") 
+clock=pygame.time.Clock() 
+myFont = pygame.font.SysFont( "arial", 30, True, False) #텍스트에 사용할 폰트
+title= myFont.render("Shooting game", True, BLACK) #화면에 띄워지는 제목 텍스트
 
 
-class Button:
+class Button: #텍스트=이미지=버튼 (render함수를 통해 텍스트를 이미지화. 텍스트에 클릭 이벤트를 넣었으므로 버튼 취급)
     def __init__(self):        
-        self.x=0
-        self.y=0
-        self.width=0
-        self.height=0        
-        self.x_act=0
-        self.y_act=0
-        self.action=None
-        self.text1=None #=img_in
-        self.text2=None #=img_act
+        self.x=0 #텍스트의 기본 x좌표
+        self.y=0 #텍스트의 기본 y좌표
+        self.width=0 #텍스트의 가로길이
+        self.height=0 #텍스트의 세로길이       
+        self.x_act=0  #마우스를 텍스트 위에 올렸을 때의 텍스트 x좌표
+        self.y_act=0 #마우스를 텍스트 위에 올렸을 때의 텍스트 y좌표
+        self.action=None #클릭 시 수행되는 함수
+        self.text1=None #=기본이미지(텍스트)
+        self.text2=None #=마우스를 버튼 위에 올렸을 때의 이미지. text1과 text2는 색만 다름
         
-    def click(self):
-        mouse=pygame.mouse.get_pos()
-        click=pygame.mouse.get_pressed()
-        if self.x+self.width > mouse[0] > self.x and self.y + self.height > mouse[1] > self.y :
-            gameDisplay.blit(self.text2,(self.x_act,self.y_act))
-            if click[0] and self.action != None:
+    def click(self): #메소드 이름을 click이라 정했지만 마우스를 올렸을 때, 클릭할 때 기능 모두 포함
+        mouse=pygame.mouse.get_pos() #마우스 좌표값 계산을 위한 변수
+        click=pygame.mouse.get_pressed() #클릭 이벤트를 위한 변수
+        if self.x+self.width > mouse[0] > self.x and self.y + self.height > mouse[1] > self.y : #마우스가 텍스트 위에 올라간 경우
+            gameDisplay.blit(self.text2,(self.x_act,self.y_act)) #위에서 설정한 마우스가 텍스트 위에 올라갔을 때의 이벤트. 1:새 택스트 2.새로운 좌표
+            if click[0] and self.action != None: #클릭 했을 때 함수실행
                 time.sleep(1)
                 self.action()
-        else:
+        else:  #마우스가 텍스트 위에 올라가 있지 않을 때의 좌표설정
             gameDisplay.blit(self.text1,(self.x,self.y))       
 
 
-class Buttonbuilder:    
+class Buttonbuilder:    #버튼빌더 (abstract)
     def set_x(self,x):
         pass
     def set_y(self,y):
@@ -92,11 +92,11 @@ class Buttonbuilder:
     def set_texts(self):
         pass
 
-class HardButtonbuiler(Buttonbuilder):
+class HardButtonbuiler(Buttonbuilder): #하드난이도 버튼 빌더 (concrete)
     def __init__(self):
         self.button=Button()        
-        self.game=Game(SCREEN_WIDTH, SCREEN_HEIGHT,HardMode_Health,HardMode_speed)
-    
+        self.game=Game(SCREEN_WIDTH, SCREEN_HEIGHT,HardMode_Health,HardMode_speed) #전역변수로 설정한 값들을 Game 인자로 전달
+                                                                                   #SCREEN_WIDTH와 SCREEN_HEIGHT는 창 크기 변수. 나머지 둘은 난이도에 따른 변수
     def set_x(self, x):
         self.button.x=x
     def set_y(self, y):
@@ -110,17 +110,17 @@ class HardButtonbuiler(Buttonbuilder):
     def set_yact(self,y_act):
         self.button.y_act=y_act
     def set_action(self):
-        self.button.action=self.game.run
+        self.button.action=self.game.run 
     def set_texts(self):
-        self.button.text1=myFont.render("Hard", True, BLACK)
+        self.button.text1=myFont.render("Hard", True, BLACK) #보여질 텍스트 설정
         self.button.text2=myFont.render("Hard", True, RED)
     def build(self):
         return self.button    
 
-class EasyButtonbuiler(Buttonbuilder):
+class EasyButtonbuiler(Buttonbuilder): #easy모드 버튼 빌더
     def __init__(self):
         self.button=Button()
-        self.game=Game(SCREEN_WIDTH, SCREEN_HEIGHT,EasyMode_Health,EasyMode_speed)
+        self.game=Game(SCREEN_WIDTH, SCREEN_HEIGHT,EasyMode_Health,EasyMode_speed) #easymode에 사용할 인자 전달
              
     def set_x(self, x):
         self.button.x=x
@@ -137,12 +137,12 @@ class EasyButtonbuiler(Buttonbuilder):
     def set_action(self):
         self.button.action=self.game.run
     def set_texts(self):
-        self.button.text1=myFont.render("Easy", True, BLACK)
+        self.button.text1=myFont.render("Easy", True, BLACK) #보여질 텍스트 설정
         self.button.text2=myFont.render("Easy", True, RED)
     def build(self):
         return self.button        
 
-class ButtonDirector:
+class ButtonDirector:  #버튼을 생성할 Director
     def __init__(self,builder):
         self._builder=builder
     def construct(self,x,y,width,height,x_act,y_act):
@@ -159,12 +159,9 @@ class ButtonDirector:
         return self._builder.build()
         
 
-def quitgame():
-    pygame.quit()
-    sys.exit()
 
-class Mainmenu():     
-    def __init__(self):
+class Mainmenu():     #위의 모든 내용을 실행할 클래스
+    def __init__(self): #버튼들 생성
         self.HB=HardButtonbuiler()
         self.EB=EasyButtonbuiler()
         self.director1=ButtonDirector(self.HB) 
@@ -174,12 +171,10 @@ class Mainmenu():
        
     def mainmenu_running(self):           
     
-        menu = True
-        
-        
+        menu = True       
     
         while menu:
-            for event in pygame.event.get():
+            for event in pygame.event.get(): #윈도우 창 끄면 게임 종료되는 코드
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
@@ -194,8 +189,9 @@ class Mainmenu():
             pygame.display.flip()
             clock.tick(15)
 #------------------------------------------------------
+
 class Game:
-    def __init__(self, width, height, h, s):
+    def __init__(self, width, height, h, s): #h=health s=speed
         pygame.init()
         self.screen = pygame.display.set_mode((width, height))
         pygame.display.set_caption("Pygame Shmup")
@@ -250,7 +246,7 @@ class Game:
             if self.player_health < 0:
                 self.gameover()
                 self.close_game()
-                #self.restart()
+                #self.restart()  #재시작 기능 제거
 
     def draw(self):
         self.screen.fill(LIGHT_PINK1)
@@ -274,7 +270,7 @@ class Game:
         pygame.quit()
         print('Game closed')
 
-    def restart(self):
+    def restart(self): #재시작 기능을 없애서 당장은 쓸모없는 메소드
         self.__init__(SCREEN_WIDTH, SCREEN_HEIGHT)
         self.run()
 
@@ -290,8 +286,8 @@ class PlayerShip(pygame.sprite.Sprite):
         self.speedx = 0
         self.speedy = 0
         
-        self.health=health
-        self.updated_speed=speed
+        self.health=health  #입력받은 체력
+        self.updated_speed=speed #입력받은 스피드
 
     def update(self):
         self.speedx = 0
@@ -361,9 +357,7 @@ class Bullet(pygame.sprite.Sprite):
         if self.rect.bottom < 0:
             self.kill()
 
-if __name__ == '__main__':
-    #game = Game(SCREEN_WIDTH, SCREEN_HEIGHT)
+if __name__ == '__main__':    
     m=Mainmenu()
-    m.mainmenu_running()
-    #game.run()
+    m.mainmenu_running()    #메인메뉴를 실행하고 난이도 선택하면 자동으로 Game class의 run 메소드 실행
     sys.exit()
