@@ -3,15 +3,6 @@ import random
 import os
 import sys
 import time
-
-
-# —— 게임창 위치설정 ——
-
-win_posx = 700import pygame
-import random
-import os
-import sys
-import time
 from abc import ABC, abstractmethod
 
 
